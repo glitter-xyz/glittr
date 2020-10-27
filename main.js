@@ -3,13 +3,12 @@ const url = require('url');
 const EventEmitter = require('events');
 const events = new EventEmitter();
 
-const { app, BrowserWindow, ipcMain, systemPreferences } = require('electron');
+const { app, BrowserWindow, screen, systemPreferences } = require('electron');
 
 require('./lib/app-id.js')(app);
 const icon = require('./lib/icon.js');
 const log = require('./lib/log.js')('main');
 const config = require('./lib/config.js');
-const debounce = require('./lib/debounce.js');
 
 log.info(`electron node version: ${process.version}`);
 
@@ -33,25 +32,25 @@ if (systemPreferences.subscribeNotification) {
   setMacOSTheme();
 }
 
-// TODO remove?
-function onIpc(ev, data) {
-  switch (true) {
-    case data.type === 'dragstart':
-      ev.sender.startDrag({
-        file: data.filepath,
-        icon: '' // icon is required :(
-      });
-  }
-}
-
 function createWindow () {
   Promise.all([
     config.read()
   ]).then(() => {
+    // TODO open one window per monitor I think?
+    const size = screen.getAllDisplays().reduce((size, display) => {
+      size.x = Math.min(size.x, display.bounds.x);
+      size.y = Math.min(size.y, display.bounds.y);
+      size.width = Math.max(size.width, display.bounds.x + display.bounds.width);
+      size.height = Math.max(size.height, display.bounds.y + display.bounds.height);
+
+      return size;
+    }, { x: 0, y: 0, width: 0, height: 0 });
+
     const windowOptions = {
-      width: config.getProp('window.width') || 1000,
-      height: config.getProp('window.height') || 800,
-      backgroundColor: '#121212',
+      x: size.x,
+      y: size.y,
+      width: size.width,
+      height: size.height,
       darkTheme: true,
       webPreferences: {
         nodeIntegration: true,
@@ -60,7 +59,11 @@ function createWindow () {
         enableRemoteModule: true
       },
       icon: icon(),
-      frame: process.platform === 'darwin' ? true : !config.getProp('experiments.framelessWindow')
+      frame: false,
+      focusable: false,
+      skipTaskbar: true,
+      alwaysOnTop: true,
+      transparent: true
     };
 
     if (process.platform === 'darwin' && config.getProp('experiments.framelessWindow')) {
@@ -69,6 +72,8 @@ function createWindow () {
 
     // Create the browser window.
     mainWindow = new BrowserWindow(windowOptions);
+
+    mainWindow.setIgnoreMouseEvents(true);
 
     stayAlive = false;
 
@@ -83,55 +88,6 @@ function createWindow () {
     }));
 
     mainWindow.on('closed', () => {
-      mainWindow = null;
-    });
-
-    mainWindow.on('resize', debounce(() => {
-      if (mainWindow.isMaximized() || mainWindow.isMinimized()) {
-        return;
-      }
-
-      const size = mainWindow.getSize();
-
-      config.setProp('window.width', size[0]);
-      config.setProp('window.height', size[1]);
-    }, 500));
-
-    mainWindow.on('maximize', () => {
-      config.setProp('window.maximized', true);
-    });
-
-    mainWindow.on('unmaximize', () => {
-      config.setProp('window.maximized', false);
-    });
-
-    ipcMain.on('message', onIpc);
-
-    mainWindow.webContents.on('devtools-opened', () => {
-      config.setProp('devToolsOpen', true);
-    });
-
-    mainWindow.webContents.on('devtools-closed', () => {
-      config.setProp('devToolsOpen', false);
-    });
-
-    if (config.getProp('devToolsOpen')) {
-      mainWindow.webContents.openDevTools();
-    }
-
-    events.on('reload', () => {
-      mainWindow.reload();
-    });
-
-    events.on('reset', () => {
-      stayAlive = true;
-
-      log.info('reopening main window');
-      mainWindow.once('close', () => {
-        createWindow();
-      });
-
-      mainWindow.close();
       mainWindow = null;
     });
   }).catch((err) => {

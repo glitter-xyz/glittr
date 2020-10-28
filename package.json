@@ -19,6 +19,7 @@
     "electron:rebuild": "electron-rebuild --types prod,optional",
     "start": "electron-background .",
     "dev": "electronmon .",
+    "dev:debug": "cross-env DEBUG_DAZZLE=1 npm run -s dev",
     "test": "mocha --timeout 30000 --slow 0 \"test/**/*.test.js\"",
     "postinstall": "npm-run-all electron:rebuild prep:icons",
     "prep": "npm run -s prep:icons",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chalk": "^4.1.0",
+    "cross-env": "^7.0.2",
     "electron": "^8.5.2",
     "electron-background": "^1.0.0",
     "electron-builder": "^22.7.0",

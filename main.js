@@ -2,6 +2,7 @@ const path = require('path');
 const url = require('url');
 const EventEmitter = require('events');
 const events = new EventEmitter();
+const iohook = require('iohook');
 
 const { app, BrowserWindow, screen, systemPreferences } = require('electron');
 
@@ -36,60 +37,64 @@ function createWindow () {
   Promise.all([
     config.read()
   ]).then(() => {
-    // TODO open one window per monitor I think?
-    const size = screen.getAllDisplays().reduce((size, display) => {
-      size.x = Math.min(size.x, display.bounds.x);
-      size.y = Math.min(size.y, display.bounds.y);
-      size.width = Math.max(size.width, display.bounds.x + display.bounds.width);
-      size.height = Math.max(size.height, display.bounds.y + display.bounds.height);
+    const displays = screen.getAllDisplays().map(display => {
+      const windowOptions = {
+        x: display.bounds.x,
+        y: display.bounds.y,
+        width: display.bounds.width,
+        height: display.bounds.height,
+        darkTheme: true,
+        webPreferences: {
+          nodeIntegration: true,
+          nodeIntegrationInWorker: true,
+          webviewTag: true,
+          enableRemoteModule: true
+        },
+        icon: icon(),
+        frame: false,
+        focusable: false,
+        skipTaskbar: true,
+        alwaysOnTop: true,
+        transparent: true
+      };
 
-      return size;
-    }, { x: 0, y: 0, width: 0, height: 0 });
+      // Create the browser window.
+      const window = new BrowserWindow(windowOptions);
+      window.setIgnoreMouseEvents(true, { forward: true });
 
-    const windowOptions = {
-      x: size.x,
-      y: size.y,
-      width: size.width,
-      height: size.height,
-      darkTheme: true,
-      webPreferences: {
-        nodeIntegration: true,
-        nodeIntegrationInWorker: true,
-        webviewTag: true,
-        enableRemoteModule: true
-      },
-      icon: icon(),
-      frame: false,
-      focusable: false,
-      skipTaskbar: true,
-      alwaysOnTop: true,
-      transparent: true
-    };
+      window.loadURL(url.format({
+        pathname: path.join(__dirname, 'public', 'index.html'),
+        protocol: 'file:',
+        slashes: true
+      }));
 
-    if (process.platform === 'darwin' && config.getProp('experiments.framelessWindow')) {
-      windowOptions.titleBarStyle = 'hidden';
-    }
+      return { display, window, bounds: display.bounds };
+    });
 
-    // Create the browser window.
-    mainWindow = new BrowserWindow(windowOptions);
+    iohook.on('mouseclick', (data) => {
+      if (data.button !== 1) {
+        return;
+      }
 
-    mainWindow.setIgnoreMouseEvents(true);
+      const { display, window } = displays.filter(({ bounds }) => {
+        return data.x >= bounds.x && data.x <= bounds.x + bounds.width &&
+          data.y >= bounds.y && data.y <= bounds.y + bounds.height;
+      })[0] || {};
+
+      if (window) {
+        console.log('dazzle at', data, display);
+
+        window.webContents.send('asynchronous-message', {
+          command: 'draw',
+          x: data.x - display.bounds.x,
+          y: data.y - display.bounds.y
+        });
+      }
+    });
+
+    iohook.start();
 
     stayAlive = false;
-
-    if (config.getProp('window.maximized')) {
-      mainWindow.maximize();
-    }
-
-    mainWindow.loadURL(url.format({
-      pathname: path.join(__dirname, 'public', 'index.html'),
-      protocol: 'file:',
-      slashes: true
-    }));
-
-    mainWindow.on('closed', () => {
-      mainWindow = null;
-    });
   }).catch((err) => {
     throw err;
   });

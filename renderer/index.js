@@ -1,6 +1,18 @@
-const { render, html, css } = require('./tools/ui.js');
-const App = require('./App/App.js');
+const confetti = require('canvas-confetti');
+const { ipcRenderer } = require('electron');
 
-css('./base.css');
+ipcRenderer.on('asynchronous-message', (ev, { command, x, y }) => {
+  if (command !== 'draw') {
+    return;
+  }
 
-render(html`<${App} />`, document.querySelector('#app'));
+  confetti({
+    startVelocity: 30,
+    spread: 360,
+    ticks: 60,
+    origin: {
+      x: x / window.innerWidth,
+      y: y / window.innerHeight
+    }
+  });
+});

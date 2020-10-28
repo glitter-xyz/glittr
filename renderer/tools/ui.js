@@ -1,12 +1,6 @@
 const path = require('path');
 const cs = require('callsites');
 
-const { h, render, createContext } = require('preact');
-const hooks = require('preact/hooks');
-
-const htm = require('htm');
-const html = htm.bind(h);
-
 const getVar = (elem, name) => getComputedStyle(elem).getPropertyValue(`--${name}`);
 const setVar = (elem, name, value) => elem.style.setProperty(`--${name}`, value);
 const getRootVar = (name) => getVar(document.documentElement, name);
@@ -29,6 +23,5 @@ const css = (csspath, dirname) => {
 
 module.exports = {
   getVar, getRootVar, setVar, setRootVar,
-  html, render, css, createContext,
-  ...hooks
+  css,
 };

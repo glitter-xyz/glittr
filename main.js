@@ -39,10 +39,8 @@ function createWindow () {
   ]).then(() => {
     const displays = screen.getAllDisplays().map(display => {
       const windowOptions = {
-        x: display.bounds.x,
-        y: display.bounds.y,
-        width: display.bounds.width,
-        height: display.bounds.height,
+        x: display.bounds.x + 1,
+        y: display.bounds.y + 1,
         darkTheme: true,
         webPreferences: {
           nodeIntegration: true,
@@ -61,6 +59,7 @@ function createWindow () {
       // Create the browser window.
       const window = new BrowserWindow(windowOptions);
       window.setIgnoreMouseEvents(true, { forward: true });
+      window.maximize();
 
       window.loadURL(url.format({
         pathname: path.join(__dirname, 'public', 'index.html'),

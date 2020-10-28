@@ -75,18 +75,21 @@ function createWindow () {
         return;
       }
 
+      const { x, y } = data;
+      const dpiPoint = screen.screenToDipPoint({ x, y });
+
+      console.log('CLICK', data, dpiPoint);
+
       const { display, window } = displays.filter(({ bounds }) => {
-        return data.x >= bounds.x && data.x <= bounds.x + bounds.width &&
-          data.y >= bounds.y && data.y <= bounds.y + bounds.height;
+        return dpiPoint.x >= bounds.x && dpiPoint.x <= bounds.x + bounds.width &&
+          dpiPoint.y >= bounds.y && dpiPoint.y <= bounds.y + bounds.height;
       })[0] || {};
 
       if (window) {
-        console.log('dazzle at', data, display);
-
         window.webContents.send('asynchronous-message', {
           command: 'draw',
-          x: data.x - display.bounds.x,
-          y: data.y - display.bounds.y
+          x: (dpiPoint.x - display.bounds.x),
+          y: (dpiPoint.y - display.bounds.y)
         });
       }
     });

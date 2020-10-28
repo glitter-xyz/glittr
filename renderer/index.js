@@ -7,6 +7,7 @@ ipcRenderer.on('asynchronous-message', (ev, { command, x, y }) => {
   }
 
   confetti({
+    particleCount: 30,
     startVelocity: 30,
     spread: 360,
     ticks: 60,

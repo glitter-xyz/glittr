@@ -1,7 +1,10 @@
 const { expect } = require('chai');
+const waitForThrowable = require('wait-for-throwable');
 
 const { start, stop } = require('./lib/app-provider.js');
 const config = require('./lib/config-provider.js');
+
+const { productName } = require('../package.json');
 
 describe('[smoke tests]', () => {
   const all = async (...promises) => {
@@ -30,41 +33,14 @@ describe('[smoke tests]', () => {
 
   it('opens the application', async () => {
     const configPath = await config.create({});
-    const app = await start(configPath);
-
-    await app.utils.waitForVisible('#app');
-    await app.utils.waitForElementCount('p', 1);
-
-    expect(await app.utils.getText('#app p')).to.include('This is your app');
-  });
-
-  it('counts when clicking the button', async () => {
-    const configPath = await config.create({});
-    const app = await start(configPath);
-
-    await app.utils.waitForVisible('.app button');
-
-    // maybe consider using better selectors, but you get the idea
-    expect(await app.utils.getText('.app > div > span')).to.equal('0');
-
-    await app.utils.click('.app button');
-
-    expect(await app.utils.getText('.app > div > span')).to.equal('1');
-  });
-
-  it('loads the previously counted value', async () => {
-    const configPath = await config.create({
-      // set any config that matter to your app/test
-      counter: 72
+    const app = await start(configPath, {
+      DEBUG_DAZZLE: 1
     });
-    const app = await start(configPath);
 
-    await app.utils.waitForVisible('#app button');
+    await waitForThrowable(async () => {
+      const title = await app.page.evaluate(() => `${document.querySelector('title').innerHTML}`);
 
-    expect(await app.utils.getText('.app > div > span')).to.equal('72');
-
-    await app.utils.click('.app button');
-
-    expect(await app.utils.getText('.app > div > span')).to.equal('73');
+      expect(title).to.equal(productName);
+    });
   });
 });

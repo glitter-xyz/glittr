@@ -48,10 +48,11 @@ const utils = page => ({
 let _browser;
 
 module.exports = {
-  start: async (configPath = '') => {
+  start: async (configPath = '', env = {}) => {
     _browser = await launch(['.'], {
       cwd: path.resolve(__dirname, '../..'),
       env: {
+        ...env,
         [configVar]: configPath
       }
     });

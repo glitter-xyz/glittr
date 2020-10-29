@@ -59,7 +59,8 @@
     ],
     "platforms": [
       "win32",
-      "darwin"
+      "darwin",
+      "linux"
     ],
     "arches": [
       "x64"

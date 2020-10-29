@@ -4,6 +4,14 @@ const iohook = require('iohook');
 
 const { app, BrowserWindow, screen, systemPreferences } = require('electron');
 
+// See:
+// https://stackoverflow.com/questions/54763647/transparent-windows-on-linux-electron
+// https://github.com/electron/electron/issues/7076
+// https://github.com/electron/electron/issues/16809
+if (process.platform === 'linux') {
+  app.commandLine.appendSwitch('enable-transparent-visuals');
+}
+
 require('./lib/app-id.js')(app);
 const icon = require('./lib/icon.js');
 const log = require('./lib/log.js')('main');
@@ -32,7 +40,9 @@ if (systemPreferences.subscribeNotification) {
 
 function createWindow () {
   Promise.all([
-    config.read()
+    config.read(),
+    // see Linux notes above
+    new Promise(r => process.platform === 'linux' ? setTimeout(r, 1000) : r())
   ]).then(() => {
     const displays = screen.getAllDisplays().map(display => {
       const windowOptions = {

@@ -76,7 +76,9 @@ function createWindow () {
       }
 
       const { x, y } = data;
-      const dpiPoint = screen.screenToDipPoint({ x, y });
+      const dpiPoint = screen.screenToDipPoint ?
+        screen.screenToDipPoint({ x, y }) :
+        { x, y };
 
       console.log('CLICK', data, dpiPoint);
 

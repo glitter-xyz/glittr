@@ -38,6 +38,17 @@ if (systemPreferences.subscribeNotification) {
   setMacOSTheme();
 }
 
+function windowOptionsForDisplay(display) {
+  if (process.platform === 'linux') {
+    return display.workArea;
+  }
+
+  return {
+    x: display.bounds.x + 1,
+    y: display.bounds.y + 1
+  };
+}
+
 function createWindow () {
   Promise.all([
     config.read(),
@@ -46,8 +57,6 @@ function createWindow () {
   ]).then(() => {
     const displays = screen.getAllDisplays().map(display => {
       const windowOptions = {
-        x: display.bounds.x + 1,
-        y: display.bounds.y + 1,
         darkTheme: true,
         webPreferences: {
           nodeIntegration: true,
@@ -60,7 +69,8 @@ function createWindow () {
         focusable: false,
         skipTaskbar: true,
         alwaysOnTop: true,
-        transparent: true
+        transparent: true,
+        ...windowOptionsForDisplay(display),
       };
 
       // Create the browser window.

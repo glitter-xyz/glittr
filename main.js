@@ -13,7 +13,7 @@ const config = require('./lib/config.js');
 
 log.info(`electron node version: ${process.version}`);
 
-let mainWindow;
+const WINDOWS = [];
 let stayAlive;
 
 // macOS Mojave light/dark mode changed
@@ -67,6 +67,8 @@ function createWindow () {
         slashes: true
       }));
 
+      WINDOWS.push(window);
+
       return { display, window, bounds: display.bounds };
     });
 
@@ -104,10 +106,16 @@ function createWindow () {
   });
 }
 
-// It's common to need to do some cleanup before closing, so if
-// you do, do it here
 app.once('before-quit', () => {
-  log.info(`${app.getName()} is closing, cleaning up`);
+  log.info('before-quit: cleanup starting');
+
+  iohook.stop();
+
+  for (const window of WINDOWS) {
+    window.close();
+  }
+
+  log.info('before-quit: cleanup complete');
 });
 
 // This method will be called when Electron has finished

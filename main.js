@@ -12,7 +12,6 @@ const config = require('./lib/config.js');
 log.info(`electron node version: ${process.version}`);
 
 const WINDOWS = [];
-let stayAlive;
 
 // macOS Mojave light/dark mode changed
 const setMacOSTheme = () => {
@@ -97,8 +96,6 @@ function createWindow () {
     });
 
     iohook.start();
-
-    stayAlive = false;
   }).catch((err) => {
     throw err;
   });

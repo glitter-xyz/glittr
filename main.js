@@ -109,7 +109,7 @@ function createWindow () {
 app.once('before-quit', () => {
   log.info('before-quit: cleanup starting');
 
-  iohook.stop();
+  iohook.unload();
 
   for (const window of WINDOWS) {
     window.close();

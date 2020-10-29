@@ -76,7 +76,9 @@ function createWindow () {
       }
 
       const { x, y } = data;
-      const dpiPoint = screen.screenToDipPoint({ x, y });
+      const dpiPoint = screen.screenToDipPoint ?
+        screen.screenToDipPoint({ x, y }) :
+        { x, y };
 
       console.log('CLICK', data, dpiPoint);
 
@@ -105,7 +107,7 @@ function createWindow () {
 app.once('before-quit', () => {
   log.info('before-quit: cleanup starting');
 
-  iohook.stop();
+  iohook.unload();
 
   for (const window of WINDOWS) {
     window.close();

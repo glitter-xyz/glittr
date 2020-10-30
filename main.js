@@ -2,7 +2,8 @@ const path = require('path');
 const url = require('url');
 const iohook = require('iohook');
 
-const { app, BrowserWindow, screen, systemPreferences } = require('electron');
+const { app, BrowserWindow, Menu, shell, screen, systemPreferences, Tray } = require('electron');
+const { homepage } = require('./package.json');
 
 // See:
 // https://stackoverflow.com/questions/54763647/transparent-windows-on-linux-electron
@@ -13,7 +14,7 @@ if (process.platform === 'linux') {
 }
 
 require('./lib/app-id.js')(app);
-const icon = require('./lib/icon.js');
+const icon = require('./lib/icon.js')();
 const log = require('./lib/log.js')('main');
 const config = require('./lib/config.js');
 
@@ -67,7 +68,7 @@ function windowOptionsForDisplay(display) {
         webviewTag: true,
         enableRemoteModule: true
       },
-      icon: icon(),
+      icon: icon,
       frame: false,
       focusable: false,
       skipTaskbar: true,
@@ -119,6 +120,21 @@ function windowOptionsForDisplay(display) {
   });
 
   iohook.start();
+
+  const tray = new Tray(icon);
+  const trayMenu = Menu.buildFromTemplate([
+    {
+      label: 'About',
+      click: () => {
+        shell.openExternal(homepage);
+      }
+    },
+    { type: 'separator' },
+    { role: 'reload' },
+    { role: 'quit' }
+  ]);
+  tray.setToolTip(app.name);
+  tray.setContextMenu(trayMenu);
 })().then(() => {
   log.info('application is running');
 }).catch(err => {

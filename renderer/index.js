@@ -10,20 +10,24 @@ if (process.env.DEBUG_DAZZLE) {
 }
 
 const firework = (origin) => {
+  const opts = {
+    ticks: 60,
+    gravity: 0.8,
+    startVelocity: 22
+  };
+
   confetti({
     particleCount: 10,
-    startVelocity: 25,
     spread: 140,
-    ticks: 60,
-    origin
+    origin,
+    ...opts
   });
 
   confetti({
     particleCount: 20,
-    startVelocity: 25,
     spread: 360,
-    ticks: 60,
-    origin
+    origin,
+    ...opts
   });
 };
 

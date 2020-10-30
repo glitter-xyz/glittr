@@ -49,77 +49,82 @@ function windowOptionsForDisplay(display) {
   };
 }
 
-function createWindow () {
-  Promise.all([
-    config.read(),
-    // see Linux notes above
-    new Promise(r => process.platform === 'linux' ? setTimeout(r, 1000) : r())
-  ]).then(() => {
-    const displays = screen.getAllDisplays().map(display => {
-      const windowOptions = {
-        darkTheme: true,
-        webPreferences: {
-          nodeIntegration: true,
-          nodeIntegrationInWorker: true,
-          webviewTag: true,
-          enableRemoteModule: true
-        },
-        icon: icon(),
-        frame: false,
-        focusable: false,
-        skipTaskbar: true,
-        alwaysOnTop: true,
-        transparent: true,
-        ...windowOptionsForDisplay(display),
-      };
+(async () => {
+  await Promise.all([
+    app.whenReady(),
+    config.read()
+  ]);
 
-      // Create the browser window.
-      const window = new BrowserWindow(windowOptions);
-      window.setIgnoreMouseEvents(true, { forward: true });
-      window.maximize();
+  // see Linux notes above
+  await new Promise(r => process.platform === 'linux' ? setTimeout(r, 1000) : r());
 
-      window.loadURL(url.format({
-        pathname: path.join(__dirname, 'public', 'index.html'),
-        protocol: 'file:',
-        slashes: true
-      }));
+  const displays = screen.getAllDisplays().map(display => {
+    const windowOptions = {
+      darkTheme: true,
+      webPreferences: {
+        nodeIntegration: true,
+        nodeIntegrationInWorker: true,
+        webviewTag: true,
+        enableRemoteModule: true
+      },
+      icon: icon(),
+      frame: false,
+      focusable: false,
+      skipTaskbar: true,
+      alwaysOnTop: true,
+      transparent: true,
+      ...windowOptionsForDisplay(display),
+    };
 
-      WINDOWS.push(window);
+    // Create the browser window.
+    const window = new BrowserWindow(windowOptions);
+    window.setIgnoreMouseEvents(true, { forward: true });
+    window.maximize();
 
-      return { display, window, bounds: display.bounds };
-    });
+    window.loadURL(url.format({
+      pathname: path.join(__dirname, 'public', 'index.html'),
+      protocol: 'file:',
+      slashes: true
+    }));
 
-    iohook.on('mouseclick', (data) => {
-      if (data.button !== 1) {
-        return;
-      }
+    WINDOWS.push(window);
 
-      const { x, y } = data;
-      const dpiPoint = screen.screenToDipPoint ?
-        screen.screenToDipPoint({ x, y }) :
-        { x, y };
-
-      console.log('CLICK', data, dpiPoint);
-
-      const { display, window } = displays.filter(({ bounds }) => {
-        return dpiPoint.x >= bounds.x && dpiPoint.x <= bounds.x + bounds.width &&
-          dpiPoint.y >= bounds.y && dpiPoint.y <= bounds.y + bounds.height;
-      })[0] || {};
-
-      if (window) {
-        window.webContents.send('asynchronous-message', {
-          command: 'draw',
-          x: (dpiPoint.x - display.bounds.x),
-          y: (dpiPoint.y - display.bounds.y)
-        });
-      }
-    });
-
-    iohook.start();
-  }).catch((err) => {
-    throw err;
+    return { display, window, bounds: display.bounds };
   });
-}
+
+  iohook.on('mouseclick', (data) => {
+    if (data.button !== 1) {
+      return;
+    }
+
+    const { x, y } = data;
+    const dpiPoint = screen.screenToDipPoint ?
+      screen.screenToDipPoint({ x, y }) :
+      { x, y };
+
+    log.info('CLICK', data, dpiPoint);
+
+    const { display, window } = displays.filter(({ bounds }) => {
+      return dpiPoint.x >= bounds.x && dpiPoint.x <= bounds.x + bounds.width &&
+        dpiPoint.y >= bounds.y && dpiPoint.y <= bounds.y + bounds.height;
+    })[0] || {};
+
+    if (window) {
+      window.webContents.send('asynchronous-message', {
+        command: 'draw',
+        x: (dpiPoint.x - display.bounds.x),
+        y: (dpiPoint.y - display.bounds.y)
+      });
+    }
+  });
+
+  iohook.start();
+})().then(() => {
+  log.info('application is running');
+}).catch(err => {
+  log.error('application has failed to start', err);
+  process.exitCode = 1;
+});
 
 app.once('before-quit', () => {
   log.info('before-quit: cleanup starting');
@@ -132,8 +137,3 @@ app.once('before-quit', () => {
 
   log.info('before-quit: cleanup complete');
 });
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);

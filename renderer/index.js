@@ -9,11 +9,22 @@ if (process.env.DEBUG_DAZZLE) {
   document.querySelector('html').setAttribute('debug', true);
 }
 
-const firework = (origin) => {
+const COLORS = {
+  christmas: [
+    '#fffeed',
+    '#39b555',
+    '#d03b3b',
+    '#901a1a',
+    '#0f6536',
+  ]
+};
+
+const firework = (origin, palette) => {
   const opts = {
     ticks: 60,
     gravity: 0.8,
-    startVelocity: 22
+    startVelocity: 22,
+    colors: COLORS[palette],
   };
 
   confetti({
@@ -31,7 +42,7 @@ const firework = (origin) => {
   });
 };
 
-ipcRenderer.on('asynchronous-message', (ev, { command, x, y }) => {
+ipcRenderer.on('asynchronous-message', (ev, { command, x, y, palette }) => {
   if (command !== 'draw') {
     return;
   }
@@ -39,5 +50,5 @@ ipcRenderer.on('asynchronous-message', (ev, { command, x, y }) => {
   firework({
     x: x / window.innerWidth,
     y: y / window.innerHeight
-  });
+  }, palette);
 });

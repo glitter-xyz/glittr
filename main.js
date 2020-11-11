@@ -112,7 +112,8 @@ function windowOptionsForDisplay(display) {
       window.webContents.send('asynchronous-message', {
         command: 'draw',
         x: (dpiPoint.x - display.bounds.x),
-        y: (dpiPoint.y - display.bounds.y)
+        y: (dpiPoint.y - display.bounds.y),
+        palette: config.getProp('theme.palette')
       });
     }
   });
@@ -128,11 +129,21 @@ function windowOptionsForDisplay(display) {
       }
     },
     { type: 'separator' },
+    {
+      label: 'Use Christmas palette',
+      type: 'checkbox',
+      click: (item) => {
+        config.setProp('theme.palette', item.checked ? 'christmas' : 'default');
+      },
+      checked: config.getProp('theme.palette') === 'christmas'
+    },
+    { type: 'separator' },
     { role: 'reload' },
     { role: 'quit' }
   ]);
   tray.setToolTip(app.name);
   tray.setContextMenu(trayMenu);
+  log.info('tray icon was set');
 })().then(() => {
   log.info('application is running');
 }).catch(err => {

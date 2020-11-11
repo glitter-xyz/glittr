@@ -128,14 +128,24 @@ function windowOptionsForDisplay(display) {
         shell.openExternal(homepage);
       }
     },
-    { type: 'separator' },
     {
-      label: 'Use Christmas palette',
-      type: 'checkbox',
-      click: (item) => {
-        config.setProp('theme.palette', item.checked ? 'christmas' : 'default');
-      },
-      checked: config.getProp('theme.palette') === 'christmas'
+      label: 'Theme',
+      type: 'submenu',
+      submenu: [{
+        label: 'Default',
+        type: 'radio',
+        click: () => {
+          config.setProp('theme.palette', 'default');
+        },
+        checked: ['default', undefined].includes(config.getProp('theme.palette'))
+      }, {
+        label: 'Christmas',
+        type: 'radio',
+        click: () => {
+          config.setProp('theme.palette', 'christmas');
+        },
+        checked: config.getProp('theme.palette') === 'christmas'
+      }]
     },
     { type: 'separator' },
     { role: 'reload' },

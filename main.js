@@ -21,6 +21,10 @@ const config = require('./lib/config.js');
 log.info(`electron node version: ${process.version}`);
 
 const WINDOWS = [];
+const THEME = {
+  get: () => config.getProp('theme.palette'),
+  set: name => config.setProp('theme.palette', name)
+};
 
 // macOS Mojave light/dark mode changed
 const setMacOSTheme = () => {
@@ -113,7 +117,7 @@ function windowOptionsForDisplay(display) {
         command: 'draw',
         x: (dpiPoint.x - display.bounds.x),
         y: (dpiPoint.y - display.bounds.y),
-        palette: config.getProp('theme.palette')
+        palette: THEME.get()
       });
     }
   });
@@ -135,16 +139,16 @@ function windowOptionsForDisplay(display) {
         label: 'Default',
         type: 'radio',
         click: () => {
-          config.setProp('theme.palette', 'default');
+          THEME.set('default');
         },
-        checked: ['default', undefined].includes(config.getProp('theme.palette'))
+        checked: ['default', undefined].includes(THEME.get())
       }, {
         label: 'Christmas',
         type: 'radio',
         click: () => {
-          config.setProp('theme.palette', 'christmas');
+          THEME.set('christmas');
         },
-        checked: config.getProp('theme.palette') === 'christmas'
+        checked: THEME.get() === 'christmas'
       }]
     },
     { type: 'separator' },

@@ -135,21 +135,18 @@ function windowOptionsForDisplay(display) {
     {
       label: 'Theme',
       type: 'submenu',
-      submenu: [{
-        label: 'Default',
-        type: 'radio',
-        click: () => {
-          THEME.set('default');
-        },
-        checked: ['default', undefined].includes(THEME.get())
-      }, {
-        label: 'Christmas',
-        type: 'radio',
-        click: () => {
-          THEME.set('christmas');
-        },
-        checked: THEME.get() === 'christmas'
-      }]
+      submenu: ['Default', 'Autumn', 'Halloween', 'Winter', 'Christmas'].map(label => {
+        const name = label.toLowerCase().replace(/ /g, '-');
+        const checked = name === 'default' ?
+          ['default', undefined].includes(THEME.get()) :
+          THEME.get() === name;
+
+        return {
+          label, checked,
+          type: 'radio',
+          click: () => void THEME.set(name)
+        };
+      })
     },
     { type: 'separator' },
     { role: 'reload' },

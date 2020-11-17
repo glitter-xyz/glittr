@@ -21,6 +21,10 @@ const config = require('./lib/config.js');
 log.info(`electron node version: ${process.version}`);
 
 const WINDOWS = [];
+const THEME = {
+  get: () => config.getProp('theme.palette'),
+  set: name => config.setProp('theme.palette', name)
+};
 
 // macOS Mojave light/dark mode changed
 const setMacOSTheme = () => {
@@ -112,7 +116,8 @@ function windowOptionsForDisplay(display) {
       window.webContents.send('asynchronous-message', {
         command: 'draw',
         x: (dpiPoint.x - display.bounds.x),
-        y: (dpiPoint.y - display.bounds.y)
+        y: (dpiPoint.y - display.bounds.y),
+        palette: THEME.get()
       });
     }
   });
@@ -127,12 +132,29 @@ function windowOptionsForDisplay(display) {
         shell.openExternal(homepage);
       }
     },
+    {
+      label: 'Theme',
+      type: 'submenu',
+      submenu: ['Default', 'Autumn', 'Halloween', 'Winter', 'Christmas'].map(label => {
+        const name = label.toLowerCase().replace(/ /g, '-');
+        const checked = name === 'default' ?
+          ['default', undefined].includes(THEME.get()) :
+          THEME.get() === name;
+
+        return {
+          label, checked,
+          type: 'radio',
+          click: () => void THEME.set(name)
+        };
+      })
+    },
     { type: 'separator' },
     { role: 'reload' },
     { role: 'quit' }
   ]);
   tray.setToolTip(app.name);
   tray.setContextMenu(trayMenu);
+  log.info('tray icon was set');
 })().then(() => {
   log.info('application is running');
 }).catch(err => {

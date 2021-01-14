@@ -156,6 +156,19 @@ function windowOptionsForDisplay(display) {
   tray.setToolTip(app.name);
   tray.setContextMenu(trayMenu);
   log.info('tray icon was set');
+
+  app.once('before-quit', () => {
+    log.info('before-quit: cleanup starting');
+
+    iohook.unload();
+    tray.destroy();
+
+    for (const window of WINDOWS) {
+      window.close();
+    }
+
+    log.info('before-quit: cleanup complete');
+  });
 })().then(() => {
   log.info('application is running');
 }).catch(err => {
@@ -163,14 +176,4 @@ function windowOptionsForDisplay(display) {
   process.exitCode = 1;
 });
 
-app.once('before-quit', () => {
-  log.info('before-quit: cleanup starting');
 
-  iohook.unload();
-
-  for (const window of WINDOWS) {
-    window.close();
-  }
-
-  log.info('before-quit: cleanup complete');
-});

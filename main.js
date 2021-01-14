@@ -68,7 +68,8 @@ function windowOptionsForDisplay(display) {
       darkTheme: true,
       webPreferences: {
         nodeIntegration: true,
-        enableRemoteModule: true
+        enableRemoteModule: true,
+        contextIsolation: false
       },
       icon: icon,
       frame: false,

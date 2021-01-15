@@ -26,23 +26,6 @@ const THEME = {
   set: name => config.setProp('theme.palette', name)
 };
 
-// macOS Mojave light/dark mode changed
-const setMacOSTheme = () => {
-  if (!(systemPreferences.setAppLevelAppearance && systemPreferences.isDarkMode)) {
-    log.info('this system does not support setting app-level appearance');
-    return;
-  }
-
-  const mode = systemPreferences.isDarkMode() ? 'dark' : 'light';
-  log.info(`setting app-level appearance to ${mode}`);
-  systemPreferences.setAppLevelAppearance(mode);
-};
-
-if (systemPreferences.subscribeNotification) {
-  systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', setMacOSTheme);
-  setMacOSTheme();
-}
-
 function windowOptionsForDisplay(display) {
   if (process.platform === 'linux') {
     return display.workArea;

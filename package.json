@@ -22,7 +22,7 @@
     "test": "mocha --timeout 30000 --slow 0 \"test/**/*.test.js\"",
     "postinstall": "npm-run-all prep",
     "prep": "npm-run-all prep:*",
-    "prep:icons": "svg-app-icon --destination icons < assets/icon.svg",
+    "prep:icons": "svg-app-icon --destination icons -s 16 -s 32 -s 256 < assets/icon.svg",
     "package": "run-script-os",
     "package:win32": "electron-builder --config .electron-builder.js --publish never --win",
     "package:darwin": "electron-builder --config .electron-builder.js --publish never --mac",

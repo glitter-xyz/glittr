@@ -2,7 +2,7 @@ const path = require('path');
 const url = require('url');
 const iohook = require('iohook');
 
-const { app, BrowserWindow, Menu, shell, screen, systemPreferences, Tray } = require('electron');
+const { app, BrowserWindow, Menu, shell, screen, Tray } = require('electron');
 const { homepage } = require('./package.json');
 
 // See:

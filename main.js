@@ -2,8 +2,7 @@ const path = require('path');
 const url = require('url');
 const iohook = require('iohook');
 
-const { app, BrowserWindow, Menu, shell, screen, Tray } = require('electron');
-const { homepage } = require('./package.json');
+const { app, BrowserWindow, screen } = require('electron');
 
 // See:
 // https://stackoverflow.com/questions/54763647/transparent-windows-on-linux-electron
@@ -17,6 +16,7 @@ require('./lib/app-id.js')(app);
 const icon = require('./lib/icon.js')();
 const log = require('./lib/log.js')('main');
 const config = require('./lib/config.js');
+const tray = require('./lib/tray.js');
 
 log.info(`electron node version: ${process.version}`);
 
@@ -108,43 +108,13 @@ function windowOptionsForDisplay(display) {
 
   iohook.start();
 
-  const tray = new Tray(icon);
-  const trayMenu = Menu.buildFromTemplate([
-    {
-      label: 'About',
-      click: () => {
-        shell.openExternal(homepage);
-      }
-    },
-    {
-      label: 'Theme',
-      type: 'submenu',
-      submenu: ['Default', 'Autumn', 'Halloween', 'Winter', 'Christmas'].map(label => {
-        const name = label.toLowerCase().replace(/ /g, '-');
-        const checked = name === 'default' ?
-          ['default', undefined].includes(THEME.get()) :
-          THEME.get() === name;
-
-        return {
-          label, checked,
-          type: 'radio',
-          click: () => void THEME.set(name)
-        };
-      })
-    },
-    { type: 'separator' },
-    { role: 'reload' },
-    { role: 'quit' }
-  ]);
-  tray.setToolTip(app.name);
-  tray.setContextMenu(trayMenu);
-  log.info('tray icon was set');
+  const destroyTray = tray({ theme: THEME });
 
   app.once('before-quit', () => {
     log.info('before-quit: cleanup starting');
 
     iohook.unload();
-    tray.destroy();
+    destroyTray();
 
     for (const window of WINDOWS) {
       window.close();
@@ -158,5 +128,3 @@ function windowOptionsForDisplay(display) {
   log.error('application has failed to start', err);
   process.exitCode = 1;
 });
-
-

@@ -13,12 +13,11 @@ if (process.platform === 'linux') {
 }
 
 require('./lib/app-id.js')(app);
+require('./lib/versions.js');
 const icon = require('./lib/icon.js')();
 const log = require('./lib/log.js')('main');
 const config = require('./lib/config.js');
 const tray = require('./lib/tray.js');
-
-log.info(`electron node version: ${process.version}`);
 
 const WINDOWS = [];
 const THEME = {

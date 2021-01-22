@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/glitter-xyz/glittr">
+  <a href="https://github.com/glitter-xyz/glittr#readme">
     <img src="assets/icon.svg" width="200px" alt="logo" />
   </a>
 </p>

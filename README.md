@@ -3,8 +3,7 @@
     <img src="assets/icon.svg" width="200px" alt="logo" />
   </a>
 </p>
-
-> Get a burst of confetti anywhere you click
+<p align="center">Get a burst of confetti anywhere you click</p>
 
 ## Download
 

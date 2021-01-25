@@ -42,10 +42,7 @@ module.exports = {
       'AppImage'
     ],
     executableName: productName,
-    category: 'Network',
-    asarUnpack: [
-      'icons/*.png'
-    ]
+    category: 'Network'
   },
   appImage: {
     artifactName: `${fileName}-v\${version}-Linux.\${ext}`

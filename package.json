@@ -33,7 +33,7 @@
     "chai": "^4.3.4",
     "chalk": "^4.1.0",
     "cross-env": "^7.0.3",
-    "electron": "^11.2.0",
+    "electron": "^11.4.1",
     "electron-background": "^1.0.0",
     "electron-builder": "^22.9.1",
     "electronmon": "^1.1.2",
@@ -51,7 +51,7 @@
     "canvas-confetti": "^1.4.0",
     "fs-extra": "^9.0.1",
     "iohook": "^0.7.2",
-    "lodash": "^4.17.19"
+    "lodash": "^4.17.21"
   },
   "iohook": {
     "targets": [

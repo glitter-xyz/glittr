@@ -22,13 +22,11 @@ Download and install the latest version for your operating system from the [late
 
 ### Windows
 
-These executables are not signed, so in any prompts where Windows would generally show developer information, it will warn you that this app is not signed. This would cost me money, and the process is a bit convoluted.
-
-This should not prevent its usage.
+These executables are not signed, so in any prompts where Windows would generally show developer information, it will warn you that this app is not signed. This should not prevent its usage however. Signing Windows applications is a bit expensive for an open-source application.
 
 ### MacOS
 
-The dmg package is not signed or notorized, and your computer will warn you that this application is made by an untrusted developer. You will need to trust this application in order to run it. Apple keeps changing the process for doing this with every OS update for some reason, so it might be best to search how to do this for your specific OS version. Becoming a trusted developer is quite expensive for an open-source application.
+The dmg package is not signed or notorized, and your computer will warn you that this application is made by an untrusted developer. You will need to trust this application in order to run it. Apple keeps changing the process for doing this with every OS update for some reason, so it might be best to search how to do this for your specific OS version. In most cases, you will just see a prompt telling you what to do when you try to run the application for the first time. Becoming a trusted developer is quite expensive for an open-source application.
 
 ### Linux (BETA)
 

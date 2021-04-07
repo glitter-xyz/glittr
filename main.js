@@ -1,6 +1,6 @@
 const path = require('path');
 const url = require('url');
-const iohook = require('iohook');
+const { uIOhook: iohook } = require('uiohook-napi');
 
 const { app, BrowserWindow, screen } = require('electron');
 
@@ -78,7 +78,7 @@ function windowOptionsForDisplay(display) {
     return { display, window, bounds: display.bounds };
   });
 
-  iohook.on('mouseclick', (data) => {
+  iohook.on('click', (data) => {
     if (data.button !== 1) {
       return;
     }

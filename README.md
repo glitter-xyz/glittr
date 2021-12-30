@@ -5,7 +5,9 @@
 </p>
 <p align="center"><b>Get a burst of confetti anywhere you click</b></p>
 
-## Download
+## Download [![github-downloads.svg]][release]
+
+[github-downloads.svg]: https://img.shields.io/github/downloads/glitter-xyz/glittr/total.svg
 
 Download and install the latest version for your operating system from the [latest release][release].
 
